@@ -14,12 +14,10 @@ namespace ReadLater5.Controllers
     public class BookmarksController : Controller
     {
         private readonly IBookmarkService _bookmarkService;
-        private readonly ICategoryService _categoryService;
 
-        public BookmarksController(IBookmarkService bookmarkService, ICategoryService categoryService)
+        public BookmarksController(IBookmarkService bookmarkService)
         {
             _bookmarkService = bookmarkService;
-            _categoryService = categoryService;
         }
         // GET: Bookmarks
         public IActionResult Index()
@@ -42,12 +40,6 @@ namespace ReadLater5.Controllers
             {
                 return new StatusCodeResult(Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound);
             }
-            Category category = new Category();
-            if (bookmark.CategoryId != null)
-            {
-                category = _categoryService.GetCategory((int)bookmark.CategoryId);
-            }
-            bookmark.Category = category;
 
             return View(bookmark);
 
@@ -90,13 +82,6 @@ namespace ReadLater5.Controllers
             {
                 return new StatusCodeResult(Microsoft.AspNetCore.Http.StatusCodes.Status404NotFound);
             }
-            Category category = new Category();
-            if (bookmark.CategoryId != null)
-            {
-                category = _categoryService.GetCategory((int)bookmark.CategoryId);
-            }
-
-            bookmark.Category = category;
 
             return View(bookmark);
         }

@@ -1,5 +1,6 @@
 ﻿using Data;
 using Entity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,14 +21,7 @@ namespace Services
         }
         public Bookmark CreateBookmark(Bookmark bookmark)
         {
-            var category = _categoryService.GetCategory(bookmark.Category.Name, bookmark.UserId);
-            if (category == null)
-            {
-                category = _categoryService.CreateCategory(bookmark.Category);
-            }
-            bookmark.CreateDate = DateTime.Now;
-            bookmark.CategoryId = category.ID;
-            bookmark.Category = category;
+            InitBookmark(bookmark);
 
             _ReadLaterDataContext.Add(bookmark);
             _ReadLaterDataContext.SaveChanges();
@@ -42,7 +36,7 @@ namespace Services
 
         public Bookmark GetBookmark(int Id)
         {
-            return _ReadLaterDataContext.Bookmark.Where(b => b.ID == Id).FirstOrDefault();
+            return _ReadLaterDataContext.Bookmark.Include(x=>x.Category).Where(b => b.ID == Id).FirstOrDefault();
         }
 
         public List<Bookmark> GetBookmarks(string userId)
@@ -56,6 +50,15 @@ namespace Services
 
         public void UpdateBookmark(Bookmark bookmark)
         {
+            InitBookmark(bookmark);
+
+            _ReadLaterDataContext.Update(bookmark);
+            _ReadLaterDataContext.SaveChanges();
+        }
+
+
+        private void InitBookmark(Bookmark bookmark)
+        {
             var category = _categoryService.GetCategory(bookmark.Category.Name, bookmark.UserId);
             if (category == null)
             {
@@ -64,9 +67,6 @@ namespace Services
             bookmark.CreateDate = DateTime.Now;
             bookmark.CategoryId = category.ID;
             bookmark.Category = category;
-
-            _ReadLaterDataContext.Update(bookmark);
-            _ReadLaterDataContext.SaveChanges();
         }
     }
 }
